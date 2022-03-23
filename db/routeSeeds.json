@@ -1,0 +1,23 @@
+[
+    {
+        "name": "Gasworks Jog",
+        "distance": "8 mi", 
+        "notes": ["Run along the burke gillman from Matthews Beach to Gasworks for a swift 8 miler."], 
+        "location": "Seattle",
+        "startZip": "98115"
+    },
+    {
+        "name": "SLU Loop",
+        "distance": "6.4 mi", 
+        "notes": ["Run South Lake Union Loop", "Burke Gillman", "Downtown", "Eastlake"], 
+        "location": "Seattle",
+        "startZip": "98108"
+    },
+    {
+        "name": "Greenlake Inner",
+        "distance": "2.8 mi", 
+        "notes": ["Inner Loop Easy 2.8", "Theather Stairs For Pumped Ending"], 
+        "location": "Seattle",
+        "startZip": "98115"
+    }
+]
