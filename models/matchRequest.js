@@ -1,17 +1,19 @@
 const mongoose = require('../db/connection')
 const User = require('./users')
 
-const matchSchema = new mongoose.Schema({ 
+const matchRequestSchema = new mongoose.Schema({ 
+    // matchA is the initiator
     matchA:{  
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    // matchB is the acceptor or denier
     matchB: {  
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    },
+    }
 }, {timestamps: true})
 
-const Match = mongoose.model('Match', matchSchema)
+const MatchRequest = mongoose.model('MatchRequest', matchRequestSchema)
 
-module.exports = Match
+module.exports = MatchRequest

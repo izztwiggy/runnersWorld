@@ -1,63 +1,144 @@
-[
+[   
     {
-    "email" :  "smile@run.com", 
-    "password": "1234",
-    "firstName": "Sheana",
-    "lastName" : "Chandler", 
-    "birthDate" : "05/23/1999", 
-    "genderIdentity" : "f",
-    "location": "seattle",
-    "zipCode": "98115", 
-    "matchMe" : true,
-    "prefrences" : {
-        "training" : false,
-        "gender" : ["f", "nb", "tm", "tf"], 
-        "ageRange" : "22 - 28", 
-        "location" : "seattle",
-        "milesRange": "15"
-        }
-    }, 
+
+        "prefrences": {
+            "genderFilter": {
+                "m": false,
+                "tranF": true,
+                "tranM": true,
+                "nb": true,
+                "f": true
+            },
+            "ageRange": {
+                "min": 22,
+                "max": 28
+            },
+            "training": false,
+            "gender": true,
+            "location": "seattle",
+            "milesRange": 15
+        },
+        "_id": "623d0f48046d4cd4184c7fc4",
+        "email": "smile@run.com",
+        "password": "1234",
+        "matchMe": true,
+        "matches": [],
+        "firstName": "Sheana",
+        "genderIdentity": "f",
+        "lastName": "Chandler",
+        "location": "seattle",
+        "zipCode": "98115"
+    },
+
     {
+        "birthDate": {
+            "month": 6,
+            "day": 26,
+            "year": 2000
+        },
+        "prefrences": {
+            "genderFilter": {
+                "m": false,
+                "tranF": true,
+                "tranM": true,
+                "nb": true,
+                "f": true
+            },
+            "ageRange": {
+                "min": 22,
+                "max": 28
+            },
+            "training": false,
+            "gender": true,
+            "location": "seattle",
+            "milesRange": 15
+        },
         "email" :  "running@gmail.com", 
         "password": "1234",
         "firstName": "Polly",
         "lastName" : "Strawberri", 
-        "birthDate" : "06/26/2000", 
-        "genderIdentity" : "f",
-        "location": "shoreline",
-        "zipCode": "98113", 
-        "matchMe" : true,
-        "prefrences" : {
-            "training" : false,
-            "gender" : ["f", "nb", "tm", "tf"], 
-            "ageRange" : "22 - 28", 
-            "location" : "shoreline",
-            "milesRange": "15"
-            }
-        }, 
-        {
-            "email" :  "tri@training.com", 
-            "password": "1234",
-            "firstName": "Sam",
-            "lastName" : "Smith", 
-            "birthDate" : "06/28/1995", 
-            "genderIdentity" : "m",
-            "location": "seattle",
-            "zipCode": "98125", 
-            "matchMe" : true,
-            "prefrences" : {
-                "training" : true,
-                "ageRange" : "25 - 35", 
-                "location" : "Seattle",
-                "milesRange": "25"
-            },
-            "training": {
-                "distanceMax": 20,
-                "raceDistance" : 26.2, 
-                "measurment": "mi"
-            }
+        "genderIdentity": "f",
+        "matchMe": true,
+        "location": "seattle",
+        "zipCode": "98115"
+    }, 
+
+
+
+    {
+        "birthDate": {
+            "month": 4,
+            "day": 21,
+            "year": 2000
         },
-        {
+        "prefrences": {
+            "genderFilter": {
+                "m": false,
+                "tranF": true,
+                "tranM": true,
+                "nb": true,
+                "f": true
+            },
+            "ageRange": {
+                "min": 21,
+                "max": 30
+            },
+            "training": false,
+            "gender": true,
+            "location": "seattle",
+            "milesRange": 15
+        },
+        "matchMe" : true,
+        "email" :  "jax@gmail.com", 
+        "password": "123",
+        "firstName": "Jax",
+        "lastName" : "Shinley", 
+        "genderIdentity" : "tranF",
+        "location": "seattle", 
+        "zipCode": "98125"
+    },
+
+    {
+
+        "birthDate": {
+            "month": 6,
+            "day": 28,
+            "year": 1995
+        },
+        "prefrences": {
+            "genderFilter": {
+                "m": true,
+                "tranF": true,
+                "tranM": true,
+                "nb": true,
+                "f": true
+            },
+            "ageRange": {
+                "min": 25,
+                "max": 35
+            },
+            "training": true,
+            "gender": true,
+            "location": "seattle",
+            "milesRange": 25
+        },
+        "training": {
+            "distanceMax": 20,
+            "raceDistance" : 26.2, 
+            "measurment": "mi"
+        },
+        "matchMe" : true,
+        "email" :  "tri@training.com",
+        "password": "1234",
+        "firstName": "Sam",
+        "lastName" : "Smith", 
+        "genderIdentity" : "m",
+        "matches": [],
+        "location": "seattle", 
+        "zipCode": "98133"
+    },
+
+    {
             "email" :  "henley@rows.com", 
             "password": "1234",
             "firstName": "Cobi",
@@ -68,29 +149,25 @@
             "matchMe" : true,
             "prefrences" : {
                 "training" : true,
-                "ageRange" : "25 - 35", 
-                "milesRange": "30"
+                "gender" : false,
+                "genderFilter" : {
+                    "m": true,
+                    "tranF": true,
+                    "tranM": true,
+                    "nb": true,
+                    "f": true
+                },
+                "ageRange" : {
+                    "min" : 25,
+                    "max" : 37
+                },
+                "milesRange": 30
             },
             "training": {
                 "distanceMax": 20,
                 "raceDistance" : 26.2, 
                 "measurment": "mi"
             }
-        }, 
-        {
-            "email" :  "jax@gmail.com", 
-            "password": "123",
-            "firstName": "Jax",
-            "lastName" : "Shinley", 
-            "birthDate" : "04/21/2000", 
-            "genderIdentity" : "tf",
-            "location": "seattle", 
-            "matchMe" : true,
-            "prefrences" : {
-                "training" : false,
-                "gender" : ["f", "nb", "tm", "tf"], 
-                "ageRange" : "21 - 30", 
-                "milesRange": "15"
-            }
         }
+        
 ]

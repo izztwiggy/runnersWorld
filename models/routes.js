@@ -1,6 +1,8 @@
 const mongoose = require('../db/connection')
 const User = require('./users')
 
+// user in route 
+
 const routeSchema = new mongoose.Schema({ 
     name: {type: String, required: true}, 
     distance: {type: Number, required: true}, 
