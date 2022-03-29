@@ -10,9 +10,16 @@ const Profile = require('../models/profile')
 // generate jwt token
 const generateToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
-        expiresIn: '3d'
+        expiresIn: '15m'
     })
 }
+
+const refreshToken = (id) => {
+    return jwt.sign({id}, process.env.JWT_SECRET, {
+        expiresIn: '1d'
+    })
+}
+
 
 // <---------------router post REGISTER ---------->
 router.post('/register', async(req,res,next) => {
@@ -38,7 +45,7 @@ router.post('/register', async(req,res,next) => {
                     user: createdUser
                 })
                 createdUser && userProfile ? 
-                res.status(200).json({_id: createdUser.id, email: createdUser.email,  token: generateToken(createdUser._id)}) : 
+                res.status(200).json({_id: createdUser.id, email: createdUser.email, token: generateToken(createdUser._id)}) : 
                 res.status(400).json({message: "Invalid User Data"})
             }
         }else{

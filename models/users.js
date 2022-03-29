@@ -5,10 +5,11 @@ const userSchema = new mongoose.Schema({
         type: String, 
         unique:true,
         lowercase: true, 
-        required: true
+        required: true,
+        trim:true
     },
     password:{type: String, required: true},
-    training: {type: Boolean, required: true}
+    refreshToken: [String]
 }, {timestamps : true})
 
 const User = mongoose.model('User', userSchema)

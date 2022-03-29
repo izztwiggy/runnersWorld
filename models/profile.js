@@ -5,6 +5,16 @@ const Route = require('./routes')
 const today = new Date()
 const year = today.getFullYear()
 
+// gender keys:
+let female = 0
+let nonBinary = 1
+let male = 2 
+let transFem = 3
+let transMasc = 4
+let twoSpirit = 5
+let selfIdentify = 6
+let undisclosed = 7
+
 const profileSchema = new mongoose.Schema({ 
     user: {  
         type: mongoose.Schema.Types.ObjectId,
