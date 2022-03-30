@@ -27,36 +27,34 @@ const routeHit = async (req, res, next) => {
 };
 
 const authRequired = async(req,res,next) => {
+    const { TokenExpiredError } = jwt
     let token
-    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
-        try{
-            // get token from header : headers.authroization, split into array, [0] is bearer, [1] is actual token
-            token = req.headers.authorization.split(' ')[1]
-            // verify token
-            const decoded = jwt.verify(token, process.env.JWT_SECRET)
-            // get user 
-            req.user = await User.findById(decoded.id).select('-password')
-            next()
-        }catch(err){
-            console.error(err)
-            res.status(401).json({message: "Not Authorized"})
+    try{
+        if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
+            try{
+                // get token from header : headers.authroization, split into array, [0] is bearer, [1] is actual token
+                token = req.headers.authorization.split(' ')[1]
+                // verify token
+                const decoded = jwt.verify(token, process.env.JWT_SECRET)
+                decoded ?
+                req.user = await User.findById(decoded.id).select('-password') :
+                res.status(403).json({message: "Invalid Request"})
+                // get user 
+                
+                next()
+            }catch(err){
+                console.error(err)
+                if(err instanceof TokenExpiredError) return res.status(401).json({message: "Unauthorized, expired Token, please re-authenitcate"})
+                res.status(401).json({message: "Not Authorized"})
+            }
         }
+        if(!token) res.status(401).json({message: "Not Authorized, no token"})
+    }catch(err){
+        next(err)
     }
-    if(!token) res.status(401).json({message: "Not Authorized, no token"})
 
 }
 
-const errHandler = (err,req,res,next) => {
-    const statusCode = res.statusCode ? res.statusCode : 500
-    res.status(statusCode)
-    res.json({
-        message: err.message, 
-        stack: process.env.NODE_ENV === 'production' ? null : err.stack
-    })
-}
-
-
-app.use(errHandler)
 app.use(routeHit)
 app.use('/sessions', sessionsController)
 app.use('/routes', authRequired, routesController)

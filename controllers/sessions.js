@@ -16,7 +16,7 @@ const generateToken = (id) => {
 
 const refreshToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
-        expiresIn: '1d'
+        expiresIn: '86400s'
     })
 }
 
@@ -27,7 +27,7 @@ router.post('/register', async(req,res,next) => {
         //  make sure all fields are filled 
         let { email, password , verifyPassword } = req.body
         if(!email || !password || !verifyPassword){
-            return res.status(400).json({message: "All Fields Must be Filled In"})
+            return res.status(505).json({message: "All Fields Must be Filled In"})
         }
         if(password === verifyPassword){
             // check for existing user
@@ -43,13 +43,17 @@ router.post('/register', async(req,res,next) => {
                 })
                 const userProfile = await Profile.create({
                     user: createdUser
-                })
+                }) 
                 createdUser && userProfile ? 
-                res.status(200).json({_id: createdUser.id, email: createdUser.email, token: generateToken(createdUser._id)}) : 
-                res.status(400).json({message: "Invalid User Data"})
+                res.status(200).json({
+                    _id: createdUser.id, 
+                    email: createdUser.email, 
+                    token: generateToken(createdUser._id)
+                }) :
+                res.status(404).json({message: "Invalid User Data"})
             }
         }else{
-            return res.status(404).json({message : "Passwords Must Match"})
+            return res.status(405).json({message : "Passwords Must Match"})
         }
         
     }catch(err){
@@ -57,19 +61,22 @@ router.post('/register', async(req,res,next) => {
     }
 })
 
+
 // <---------------router post LOGIN ---------->
 router.post('/login', async(req,res,next) => {
      try{
         const { email, password } = req.body
-        if(!email || !password) return res.status(500).json({message: "Must include Both Email and Password"})
+        if(!email || !password) return res.status(505).json({message: "Must include Both Email and Password"})
         let loginUser = await User.findOne({email: email})
         if(loginUser){
             const validPassword = await bcrypt.compare(password, loginUser.password)
             if(validPassword){
+                // res.cookie('jwt',{httpOnly: true, maxAge: 24 * 60 * 60 * 1000})
                 res.status(200).json({
                     _id: loginUser.id,
                     email: loginUser.email,
-                    token: generateToken(loginUser._id)
+                    token: generateToken(loginUser._id),
+                    // refreshToken: refreshToken(loginUser.id)
                 })
                 console.log('Logged in user')
             }else{
@@ -85,6 +92,8 @@ router.post('/login', async(req,res,next) => {
         next(err)
     }
 })
+
+
 
 // <---------------router get logout  ---------->
 router.get('/logout', async(req,res,next) => {
