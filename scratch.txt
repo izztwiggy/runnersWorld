@@ -1,0 +1,5 @@
+        query to waterfall delete if user is deleted
+        // const deleteMatchRequestA = await MatchRequest.find({matchA : req.user.id})
+        // const deleteMatchRequestB = await MatchRequest.find({matchB : req.user.id})
+        // const deleteMatchesA = await Match.find({matchA : req.user.id})
+        // const deleteMatchesB = await Match.find({matchB : req.user.id})

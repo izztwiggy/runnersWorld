@@ -6,9 +6,12 @@ const User = require('./users')
 const routeSchema = new mongoose.Schema({ 
     name: {type: String, required: true}, 
     distance: {type: Number, required: true}, 
+    measurement: {type: String},
     notes: [String], 
     location: String,
     startZip: String,
+    tags: [String],
+    likes: {type:[String], default: []},
     user: {  
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

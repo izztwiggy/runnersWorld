@@ -11,7 +11,8 @@ const matchRequestSchema = new mongoose.Schema({
     matchB: {  
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    }
+    },
+    accepted: {type: Boolean, default: false}
 }, {timestamps: true})
 
 const MatchRequest = mongoose.model('MatchRequest', matchRequestSchema)

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require('../models/users')
 const Route = require('../models/routes');
+const Profile = require('../models/profile')
 
 // app.use('/routes', routesController)
 
@@ -9,7 +10,7 @@ const Route = require('../models/routes');
 router.get('/', async(req,res,next) => {
     try{
         const allRoutes = await Route.find({})
-        allRoutes ?
+        return allRoutes ?
         res.status(200).json(allRoutes) :
         res.status(500).json({error: error.message})
     }catch(err){
@@ -17,13 +18,36 @@ router.get('/', async(req,res,next) => {
     }
 })
 
+router.get('/search', async(req,res,next) => {
+    
+    try{
+        const { searchQuery, tags, author} = req.query;
+        if(req.query){
+            const name = new RegExp(searchQuery, "i")
+            const createdBy = await Profile.findOne({firstName: author})
+            const routes = await Route.find({$or:[{name},{user: createdBy.id},{ tags: { $in: tags.split(',') } }]})
+            return routes ? res.status(200).json({routes}) : res.status(404).json({error: error.message})
+        }
+        const allRoutes = await Route.find({})
+        return allRoutes ?
+        res.status(200).json(allRoutes) :
+        res.status(500).json({error: error.message})
+    }catch(err){
+        next(err)
+    }
+})
+
+// post new route to all routes 
 router.post('/', async(req,res,next) => {
     try{
+        const {name, distance} = req.body
+        if(!name || !distance) return res.status(404).json({message: "Missing Required Name or Distance"})
         const routeData = {
             ...req.body, 
-            user: req.user
+            user: req.user.id
         }
         const newRoute = await Route.create(routeData)
+        newRoute.save()
         newRoute ?
         res.status(202).json(newRoute) : 
         res.status(404).json({error: error.message})
@@ -44,38 +68,57 @@ router.get('/:routeId', async(req,res,next) => {
     }
 })
 
-// edit route
-router.put('/:routeId', async(req,res,next) => {
-    try{
-        const route = await Route.findById(req.params.routeId)
-        if(!route) return res.status(401).json({message: "No Route Found"})
-        const user = await User.findById(req.user.id)
-        if(!user) return res.status(401).json({message: "No User Found, Unauthorized Request"})
-        if(route.user.toString() !== user.id) return res.status(401).json({message: "User Not Authorized"})
-
-        const editRoute = await Route.findByIdAndUpdate(req.params.routeId, req.body, {new:true})
-        editRoute ? 
-        res.status(200).json(editRoute) : 
-        res.status(500).json({message : error.message})
-    }catch(err){
-        next(err)
-    }
-})
-
 // delete route
 router.delete('/:routeId', async(req,res,next) => {
     try{
         const route = await Route.findById(req.params.routeId)
-        if(!route) return res.status(401).json({message: "No Route Found"})
-        const user = await User.findById(req.user.id)
-        if(!user) return res.status(401).json({message:"No User Found, Unauthorized Request"})
-        if(route.user.toString() !== user.id) return res.status(401).json({message: "User Not Authorized"})
-
-        await route.remove()
-        res.status(200).json({id: req.params.routeId})
+        if(route.user._id.toString() === req.user.id){
+            await route.remove()
+            return res.status(204).json({message: "Deleted Route"})
+        }else {
+            return res.status(404).json({message: "Unauthorized Request"})
+        }
     }catch(err){
         next(err)
     }
 })
+
+
+// edit route
+router.put('/:routeId', async(req,res,next) => {
+    try{
+        const route = await Route.findById(req.params.routeId)
+        route && console.log(route.user._id.toString(), req.user.id)
+        if(route.user._id.toString() === req.user.id){
+            const editRoute = await Route.findByIdAndUpdate(req.params.routeId, req.body, {new:true})
+            return editRoute ? 
+            res.status(200).json(editRoute) : 
+            res.status(500).json({error: error.message})
+        }
+        return res.status(500).json({error: error.message})
+       
+    }catch(err){
+        next(err)
+    }
+})
+
+
+router.put('/:routeId/likes', async(req,res,next) => {
+    try{
+        const route = await Route.findById(req.params.routeId)
+        const alreadyLiked = await route.likes.findIndex((id) => id === (req.user.id).toString())
+        if(alreadLiked === -1){
+            route.likes.push(req.user.id)
+        }else{
+             route.likes = route.likes.filter((id) => id !== (req.user.id).toString())
+        }       
+        route.save()
+        route ? 
+        res.status(200).json(route) : 
+        res.status(500).json({message : error.message})
+    }catch(err){
+        next(err)
+    }
+})                                                                                                                                      
 
 module.exports = router
