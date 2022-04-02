@@ -11,15 +11,28 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy
 // const FacebookStrategy = require('passport-facebook').Strategy
 // const localStrategy = require("passport-local").Strategy
 
-const CLIENT_URL = 'http://localhost:4600/'
+const CLIENT_URL = process.env.MONGODB_URL
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 
 const {OAuth2Client} = require('google-auth-library')
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
-const googleAuth = async(token) => {
-    const ticket = await client.verifyIdToken({
+// const googleAuth = async(token) => {
+//     const ticket = await client.verifyIdToken({
+//         idToken: token, 
+//         audience: process.env.GOOGLE_CLIENT_ID
+//     })
+//     const payload = ticket.getPayload()
+//     console.log(`User ${payload.name} verified`)
+//     const {givenName, familyName, email, picture } = payload
+//     const userId = sub
+//     return { userId, email, givenName, familyName, picture}
+// }
+
+router.post('/google', (req,res) => {
+    const {token} = req.body
+    const ticket = client.verifyIdToken({
         idToken: token, 
         audience: process.env.GOOGLE_CLIENT_ID
     })
@@ -28,10 +41,7 @@ const googleAuth = async(token) => {
     const {givenName, familyName, email, picture } = payload
     const userId = sub
     return { userId, email, givenName, familyName, picture}
-}
 
-router.post('/google', (req,res) => {
-    googleAuth()
 })
 
 // router.post('/google', (req,res) => {

@@ -3,3 +3,35 @@
         // const deleteMatchRequestB = await MatchRequest.find({matchB : req.user.id})
         // const deleteMatchesA = await Match.find({matchA : req.user.id})
         // const deleteMatchesB = await Match.find({matchB : req.user.id})
+
+
+profile
+        {
+  " firstName":"Saly" ,
+    "lastName": "pond",
+    "birthDate": {
+       " month": 5,
+       " day": 23,
+        "year":1999
+    },
+    "genderIdentity": "0", 
+   " location": "seattle",
+    "zipCode": "98125",
+   " matchMe": true
+}
+
+
+
+prefrences
+{   "training": false,
+    "filterGender":true,
+    "genderToFilter.tranF":true,
+    "genderToFilter.tranM":true,
+    "genderToFilter.nb":true,
+    "genderToFilter.f":true,
+    "ageRange.min" : 24,
+    "ageRange.max" : 30,
+    "genderIdentity": "0", 
+   " location": "seattle",
+    "zipCode": "98125"
+}

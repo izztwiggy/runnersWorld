@@ -7,7 +7,7 @@ const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const passport = require("passport");
 const User = require('./models/users')
-const authRequired = require('./utils/authRequired')
+const authRequired = require('./middleware/authRequired')
 
 const recsController = require('./controllers/recs')
 const usersController = require('./controllers/users')
@@ -18,6 +18,14 @@ const dashboardController = require('./controllers/dashboard')
 const passportAuthController = require("./controllers/passport");
 
 app.set('port', process.env.PORT || 4600)
+
+app.use(
+    cors({
+      origin: [process.env.NODE_ENV === 'production' ? process.env.FRONT_END_URL :  "http://localhost:3000","http://localhost:3000"], 
+      credentials: true
+    })
+);
+
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(
@@ -27,18 +35,12 @@ app.use(
       saveUninitialized: false,
     })
 )
-app.use(
-    cors({
-      origin: process.env.NODE_ENV === 'production' ? process.env.FRONT_END_URL :  "http://localhost:3000" , // <-- location of the react app were connecting to
-      credentials: true,
-    })
-);
 
 app.use(cookieParser())
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
 
-app.use('/auth', passportAuthController)
+// app.use('/auth', passportAuthController)
 app.use('/sessions', sessionsController)
 app.use('/dashboard', authRequired, dashboardController)
 app.use('/matches',  authRequired, matchesController)

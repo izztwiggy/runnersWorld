@@ -40,7 +40,9 @@ router.get('/search', async(req,res,next) => {
 // post new route to all routes 
 router.post('/', async(req,res,next) => {
     try{
+        if(!req.user) return res.status(404).json({message: "No User Found"})
         const {name, distance} = req.body
+        console.log('hello new route')
         if(!name || !distance) return res.status(404).json({message: "Missing Required Name or Distance"})
         const routeData = {
             ...req.body, 
@@ -95,7 +97,7 @@ router.put('/:routeId', async(req,res,next) => {
             res.status(200).json(editRoute) : 
             res.status(500).json({error: error.message})
         }
-        return res.status(500).json({error: error.message})
+        return res.status(500).json({message: "Unauthorized Request"})
        
     }catch(err){
         next(err)

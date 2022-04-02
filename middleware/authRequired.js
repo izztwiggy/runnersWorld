@@ -1,3 +1,7 @@
+const jwt = require('jsonwebtoken')
+const User = require('../models/users')
+
+
 const authRequired = async(req,res,next) => {
     const { TokenExpiredError } = jwt
     let token

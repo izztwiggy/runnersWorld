@@ -27,7 +27,8 @@ const Schedule = require("../models/schedule");
 router.get('/', async(req,res,next) => {
     try{
         const waitingLikes = await MatchRequest.find({matchB: req.user.id})
-        
+        waitingLikes ? res.status(200).json(waitingLikes) : 
+        res.status(400).json({error: error.message})
         // this is getting all POTENTIAL matches to send to the user to "swipe" through : to get all of user matches : go through /user/matches in user route
         // we want to get all users, filter by: training/buddy -> user location prefrence ->  age prefrence =>  the gender prefrences : AS WELL AS THE OTHER USERS PREFRENCES : should have a training partner bucket and a buddy bucket : 
         // if user is a training : look in all trainingProfiles to filter, 
@@ -68,7 +69,7 @@ router.post('/:userB', async(req,res,next) => {
                 matchB : req.user.id
             })
             await newMatch.save()
-            await checkLikeRequest.remove()
+            await MatchRequest.deleteOne({matchA: req.params.userB, matchB: req.user.id})
             console.log('New Match Created')
             newMatch ?
             res.status(202).json(newMatch):

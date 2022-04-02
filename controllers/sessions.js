@@ -6,8 +6,6 @@ const crypto = require('crypto')
 const User = require('../models/users')
 const Profile = require('../models/profile');
 const Prefrences = require("../models/prefrences");
-const passport = require("passport");
-const passportLocal = require("passport-local").Strategy;
 const sendEmail = require('../utils/sendEmail')
 
 
@@ -27,35 +25,35 @@ const refreshToken = (id) => {
 
 // token length > 500 is google auth, < 500 is here
 
-const CLIENT_URL = process.env.FRONT_END_URL
-const DB_URL = 'http://localhost:4600/'
+const CLIENT_URL = process.env.NODE_ENV === 'production' ? process.env.FRONT_END_URL : 'http://localhost:3000'
+const DB_URL = process.env.NODE_ENV === 'production' ? process.env.MONGODB_URL : 'http://localhost:4600'
 
-const getResetPasswordToken = async(id) => {
-    try{
-        const resetToken = crypto.randomBytes(20).toString('hex')
-        // create token hash
-        const resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest('hex')
-        // 10 mins to reset pw
-        let resetPasswordExpire = Date.now() + 10 * 60 * 1000
-        let user = await User.findByIdAndUpdate(id, {resetToken: resetPasswordToken, resetTokenExpire: resetPasswordExpire})
-        return resetToken
-    }catch(err){
-       console.error(err)
-    }
+// const getResetPasswordToken = async(id) => {
+//     try{
+//         const resetToken = crypto.randomBytes(20).toString('hex')
+//         // create token hash
+//         const resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest('hex')
+//         // 10 mins to reset pw
+//         let resetPasswordExpire = Date.now() + 10 * 60 * 1000
+//         let user = await User.findByIdAndUpdate(id, {resetToken: resetPasswordToken, resetTokenExpire: resetPasswordExpire})
+//         return resetToken
+//     }catch(err){
+//        console.error(err)
+//     }
 
-}
+// }
 
 
 
 // <---------------router post REGISTER ---------->
 router.post('/register', async(req,res,next) => {
      try{
-        let { email, password , verifyPassword } = req.body
-        if(!email || !password || !verifyPassword){
+        let { email, password , username, verifyPassword } = req.body
+        if(!email || !password ||!username || !verifyPassword){
             return res.status(505).json({message: "All Fields Must be Filled In"})
         }
         if(password === verifyPassword){
-            const user = await User.findOne({email: email})
+            const user = await User.findOne({$or:[{username:username},{email:email}]})
             if(user){
                 return res.status(400).json({message: "User Already Exists"})
             }else {
@@ -63,6 +61,7 @@ router.post('/register', async(req,res,next) => {
                 const hashedPassword = await bcrypt.hash(password, salt)
                 const createdUser = await User.create({
                     email: email,
+                    username: username,
                     password: hashedPassword
                 })
                 const userProfile = await Profile.create({user: createdUser}) 
@@ -74,8 +73,8 @@ router.post('/register', async(req,res,next) => {
                 res.status(201).json({
                     _id: createdUser.id, 
                     email: createdUser.email, 
-                    profile: userProfile.id,
-                    prefrences:userPrefs.id,
+                    profile: userProfile,
+                    prefrences:userPrefs,
                     token: generateToken(createdUser._id)
                 }) :
                 res.status(404).json({message: "Invalid User Data"})
@@ -93,7 +92,6 @@ router.post('/register', async(req,res,next) => {
 // <---------------router post LOGIN ---------->
 router.post('/login', async(req,res,next) => {
      try{
-        const cookies = req.cookies
         const { email, password } = req.body
         if(!email || !password) return res.status(505).json({message: "Must include Both Email and Password"})
         let loginUser = await User.findOne({email: email})
@@ -102,21 +100,21 @@ router.post('/login', async(req,res,next) => {
             if(validPassword){
                 let newRefreshToken = await refreshToken(loginUser.id)
                 // if no cookies with the jwt, foundUser refreshToken is what we made, if there is a cookie with the token remove token
-                const newRefreshTokenArr = 
-                !cookies?.jwt ?  
-                loginUser.refreshToken :
-                loginUser.refreshToken.filter(refTok => refTok !== refreshToken)
+                // const newRefreshTokenArr = 
+                // !cookies?.jwt ?  
+                // loginUser.refreshToken :
+                // loginUser.refreshToken.filter(refTok => refTok !== refreshToken)
 
                 // if received a cookie in authentication, delete it here
-                if(cookies?.jwt) res.clearCookie('jwt', {httpOnly: true, sameSite: 'none', secure: true})
+                // if(cookies?.jwt) res.clearCookie('jwt', {httpOnly: true, sameSite: 'none', secure: true})
 
                 // save current refreshToken with users refreshtokens
-                loginUser.refreshToken = [...newRefreshTokenArr, newRefreshToken]
+                // loginUser.refreshToken = [...newRefreshTokenArr, newRefreshToken]
                 // save new refresh token to the users profile
-                await loginUser.save()
+                // await loginUser.save()
                 const profile = await Profile.findOne({user: loginUser.id})
                 const prefrences = await Prefrences.findOne({user:loginUser.id})
-                console.log(loginUser)
+                // console.log(loginUser)
                 res.cookie('jwt', newRefreshToken,{httpOnly: true,sameSite: 'None',maxAge: 24 * 60 * 60 * 1000})
                 return res.status(200).json({
                     _id: loginUser.id,
@@ -143,7 +141,7 @@ router.post('/login', async(req,res,next) => {
 // <---------------router get logout  ---------->
 router.get('/logout', async(req,res,next) => {
      try{
-        req.logout()
+        // req.logout()
         const cookies = req.cookies
         if(!cookies?.jwt) return res.status(204).json({message:"Log Out Successful"})
         const refreshToken = cookies.jwt
@@ -154,8 +152,8 @@ router.get('/logout', async(req,res,next) => {
             return res.status(204).json({message:"Cookie Cleared, User Logged Out"})
         }
         // delete from the db
-        user.refreshToken = user.refreshToken.filter(refreshT => refreshT !== refreshToken)
-        await user.save()
+        // user.refreshToken = user.refreshToken.filter(refreshT => refreshT !== refreshToken)
+        // await user.save()
 
         res.clearCookie('jwt', {httpOnly: true, sameSite: 'none', secure: true})
         return res.status(204).json({message:"Cookie Cleared, User Logged Out"})
@@ -166,55 +164,55 @@ router.get('/logout', async(req,res,next) => {
 })
 
 
-router.post('/resetPassword', async(req,res,next) => {
-    try{
-        const {email} = req.body
-        const user = await User.findOne({email: email})
+// router.post('/resetPassword', async(req,res,next) => {
+//     try{
+//         const {email} = req.body
+//         const user = await User.findOne({email: email})
 
-        if(!user) return res.status(404).json({message: "Email Could not be sent"})
+//         if(!user) return res.status(404).json({message: "Email Could not be sent"})
 
-        const resetToken = getResetPasswordToken(user.id)
+//         const resetToken = getResetPasswordToken(user.id)
 
-        const resetUrl = `http://localhost:4600/sessions/resetPassword/${resetToken}`
-        const message = `
-        <h1>You have requested a password reset</h1>
-        <p>Please go to this link to reset your password</p>
-        <a href=${resetUrl} clicktracking="off">${resetUrl}</a>
-        `
-        try{
-            await sendEmail({
-                to: user.email, 
-                subject: "Password Reset Request",
-                text: message
-            })
-            res.status(200).json({success: true, data: "Email Sent"}) 
-        }catch(err){
-            user.resetPasswordToken = undefined
-            user.resetPasswordExpire = undefined
-            await user.save()
-            return res.status(500).json({message: "Email Could not be sent"})
-        }
-    }catch(err){
-        next(err)
-    }
-})
+//         const resetUrl = `${process.env.FRONT_END_URL}/sessions/resetPassword/${resetToken}`
+//         const message = `
+//         <h1>You have requested a password reset</h1>
+//         <p>Please go to this link to reset your password</p>
+//         <a href=${resetUrl} clicktracking="off">${resetUrl}</a>
+//         `
+//         try{
+//             await sendEmail({
+//                 to: user.email, 
+//                 subject: "Password Reset Request",
+//                 text: message
+//             })
+//             res.status(200).json({success: true, data: "Email Sent"}) 
+//         }catch(err){
+//             user.resetPasswordToken = undefined
+//             user.resetPasswordExpire = undefined
+//             await user.save()
+//             return res.status(500).json({message: "Email Could not be sent"})
+//         }
+//     }catch(err){
+//         next(err)
+//     }
+// })
 
-// reset password
-router.put('/resetPassword/:resetToken', async(req,res,next) => {
-    let resetToken = crypto.createHash("sha256").update(req.params.resetToken).digest('hex')
-    try{
-        const user = await User.findOne({
-            resetPasswordToken: resetToken, 
-            resetPasswordExpire: {$gt: Date.now()}
-        })
-        if(!user) return res.status(404).json({message:"Invalid Reset Token"}) 
+// // reset password
+// router.put('/resetPassword/:resetToken', async(req,res,next) => {
+//     let resetToken = crypto.createHash("sha256").update(req.params.resetToken).digest('hex')
+//     try{
+//         const user = await User.findOne({
+//             resetPasswordToken: resetToken, 
+//             resetPasswordExpire: {$gt: Date.now()}
+//         })
+//         if(!user) return res.status(404).json({message:"Invalid Reset Token"}) 
 
-        let newHashedPassword =  await bcrypt.hash(req.body.password, salt)
-        user.password = newHashedPassword
-        user.resetPasswordToken = undefined
-        user.resetTokenExpire = undefined
-        await user.save()
-        return res.status(201).json({success: true, message: "ReLog In to "})
+//         let newHashedPassword =  await bcrypt.hash(req.body.password, salt)
+//         user.password = newHashedPassword
+//         user.resetPasswordToken = undefined
+//         user.resetTokenExpire = undefined
+//         await user.save()
+//         return res.status(201).json({success: true, message: "ReLog In to "})
         
         // const resetToken = req.params.resetToken
         // const {newPassword, verifyNewPassword} = req.body
@@ -245,10 +243,10 @@ router.put('/resetPassword/:resetToken', async(req,res,next) => {
         //     return res.status(500).json({message: "Email Could not be sent"})
         // }
         
-    }catch(err){
-        next(err)
-    }
-})
+//     }catch(err){
+//         next(err)
+//     }
+// })
 
 
 module.exports = router
